@@ -1,24 +1,15 @@
+from linebot.models import TextSendMessage
+
 class DefaultChatBotAction():
-    def __init__(self, msg, intent):
+    def __init__(self, msg, intent, line_bot_api):
         self.msg = msg
         self.intent = intent
+        self.line_bot_api = line_bot_api
 
     def get_response(self):
-        return self.intent.get("fulfillmentText", "")
+        response_msg = self.intent.get("fulfillmentText", "")
+        self.line_bot_api.reply_message(
+            self.msg.reply_token,
+            TextSendMessage(text=response_msg)
+        )
 
-
-class ChangeRateChatBotAction():
-    def __init__(self, msg, intent):
-        self.msg = msg
-        self.intent = intent
-
-    def get_response(self):
-        from exchange_rate_service import changeRate
-        params = self.intent.get("parameters")
-        if params is None:
-            return u"匯率轉換失敗"
-        _from = params.get("from")
-        to = params.get("to")
-        number = params.get("number")
-        data = changeRate(number, _from, to)
-        return data

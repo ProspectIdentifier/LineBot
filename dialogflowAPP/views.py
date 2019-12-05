@@ -36,8 +36,5 @@ class DialogflowAppChat(views.APIView):
 
     @handler.add(MessageEvent, message=TextMessage)
     def message_text(event: MessageEvent):
-        msg = msg_handler.handle_message(event)
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=msg)
-        )
+        msg_handler.handle_message(event, line_bot_api)
+        

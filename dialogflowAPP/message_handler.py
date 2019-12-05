@@ -8,6 +8,8 @@ from rest_framework.exceptions import APIException, ParseError
 from google.oauth2 import service_account
 import google.auth.transport.requests
 
+from linebot.models import TextSendMessage
+
 from cachetools import cached, TTLCache
 from dialogflowAPP.chatbot_actions import *
 
@@ -32,7 +34,7 @@ def get_intent_from_dialogflow(msg):
     post_data = {
         "queryInput":{
             "text":{
-                "text": msg,
+                "text": msg.message.text,
 		        "languageCode": config('LANGUAGECODE')
             }
         }
@@ -43,7 +45,7 @@ def get_intent_from_dialogflow(msg):
         "Authorization": "Bearer " + get_dialogflow_token()
     }
 
-    url = config('DIALOGFLOWAPI')
+    url = config('DIALOGFLOWAPI') + msg.source.userId + ":detectIntent"
     response = requests.post(url,
                         json=post_data,
                         headers=header)
@@ -51,14 +53,13 @@ def get_intent_from_dialogflow(msg):
     intent = json.loads(response.text)
     return intent.get("queryResult", None)
 
-def handle_message(msg):
+def handle_message(msg, line_bot_api):
     try:
-        intent = get_intent_from_dialogflow(msg.message.text)
+        intent = get_intent_from_dialogflow(msg)
         try:
-            parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent)
-            print(parsed_action)
-            return parsed_action.get_response()
+            parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent, line_bot_api)
+            parsed_action.get_response()
         except:
-            return DefaultChatBotAction(msg, intent).get_response()
+            DefaultChatBotAction(msg, intent, line_bot_api).get_response()
     except:
-        return "I don't understand what you are saying."
+        line_bot_api.reply_message(msg.reply_token, TextSendMessage(text="I don't understand what you are saying."))
