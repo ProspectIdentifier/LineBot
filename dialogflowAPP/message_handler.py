@@ -45,7 +45,7 @@ def get_intent_from_dialogflow(msg):
         "Authorization": "Bearer " + get_dialogflow_token()
     }
 
-    url = config('DIALOGFLOWAPI') + msg.source.userId + ":detectIntent"
+    url = config('DIALOGFLOWAPI') + msg.source.user_id + ":detectIntent"
     response = requests.post(url,
                         json=post_data,
                         headers=header)
@@ -58,8 +58,10 @@ def handle_message(msg, line_bot_api):
         intent = get_intent_from_dialogflow(msg)
         try:
             parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent, line_bot_api)
-            parsed_action.get_response()
+            return parsed_action.get_response()
         except:
-            DefaultChatBotAction(msg, intent, line_bot_api).get_response()
+            return DefaultChatBotAction(msg, intent, line_bot_api).get_response()
     except:
-        line_bot_api.reply_message(msg.reply_token, TextSendMessage(text="I don't understand what you are saying."))
+        err_msg = "I don't understand what you are saying."
+        line_bot_api.reply_message(msg.reply_token, TextSendMessage(text=err_msg))
+        return err_msg

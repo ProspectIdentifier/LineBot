@@ -12,4 +12,5 @@ class DefaultChatBotAction():
             self.msg.reply_token,
             TextSendMessage(text=response_msg)
         )
+        return response_msg
 
