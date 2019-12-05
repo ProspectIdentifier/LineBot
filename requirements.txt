@@ -1,4 +1,4 @@
-requests==2.18.4
+requests==2.20.0
 uWSGI==2.0.18
 django==2.2.8
 djangorestframework==3.10.3
