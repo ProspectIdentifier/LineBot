@@ -4,6 +4,8 @@ django==2.2.8
 djangorestframework==3.10.3
 python-decouple==3.3
 coreapi==2.3.3
+responses==0.10.7
+python-decouple==3.3
 gunicorn==19.6.0
 line-bot-sdk
 google-auth
