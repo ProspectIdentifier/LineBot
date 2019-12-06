@@ -1,12 +1,8 @@
 import requests
 from decouple import config
-from linebot.models import CarouselTemplate,
-                           TemplateSendMessage,
-                           CarouselColumn,
-                           URIAction,
-                           PostbackAction,
-                           MessageAction,
-                           TextSendMessage
+from linebot.models import (CarouselTemplate, TemplateSendMessage,
+                            CarouselColumn, URIAction, PostbackAction,
+                            MessageAction, TextSendMessage)
 
 # 'Address', 'Blocked', 'RecordType', 'Phone', 'Email', 'PostCode'
 titles = ['NavisionID', 'City']
