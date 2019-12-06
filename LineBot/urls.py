@@ -14,14 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
-from django.contrib import admin
 
 from LineBot import views
-# from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
-    # url(r'^admin/', admin.site.urls),
-    # url(r'^docs/', include_docs_urls(title='Todo API', description='RESTful API for Todo')),
     url(r'^$', views.api_root),
     url(r'^', include(('dialogflowAPP.urls', 'dialogflowAPP'), namespace='dialogflowAPP')),
 ]
