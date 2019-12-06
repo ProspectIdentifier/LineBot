@@ -75,7 +75,8 @@ def handle_message(msg, line_bot_api):
             return parsed_action.get_response()
         except:
             return DefaultChatBotAction(msg, intent, line_bot_api).get_response()
-    except:
+    except Exception as e:
+        print(e)
         err_msg = "I don't understand what you are saying."
         if line_bot_api is not None:
             line_bot_api.reply_message(msg.reply_token, TextSendMessage(text=err_msg))
