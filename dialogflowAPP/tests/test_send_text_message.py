@@ -18,7 +18,13 @@ class TestLineBotApi(TestCase):
     """ Test module for inserting a new test """
 
     def setUp(self):
-        self.tested = LineBotApi(config('LINE_CHANNEL_ACCESS_TOKEN'))
+        import os
+        enviroment = os.environ['DJANGO_SETTINGS_MODULE'].split('.')[-1]
+
+        if enviroment == 'staging':
+            self.tested = LineBotApi(config('LINE_CHANNEL_ACCESS_TOKEN_STG'))
+        elif enviroment == 'production':
+            self.tested = LineBotApi(config('LINE_CHANNEL_ACCESS_TOKEN'))
 
         # test data
         self.text_message = TextSendMessage(text='Hello, world')
