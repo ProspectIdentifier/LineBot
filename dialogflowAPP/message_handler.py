@@ -14,7 +14,7 @@ from cachetools import cached, TTLCache
 from dialogflowAPP.chatbot_actions import *
 
 from dialogflowAPP.search_reseller import check_for_keyword_search
-from logsystem.logrecoder import *
+from dialogflowAPP.logrecoder import *
 
 cache = TTLCache(maxsize=1024, ttl=3600)
 
