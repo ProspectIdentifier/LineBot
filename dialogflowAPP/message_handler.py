@@ -18,8 +18,9 @@ cache = TTLCache(maxsize=1024, ttl=3600)
 @cached(cache)
 def get_dialogflow_token():
     try:
-        credentials = service_account.Credentials.from_service_account_file(
-            config('SERVICE_ACCOUNT_FILE'),
+        service_account_info= google_service_account_info()
+        credentials = service_account.Credentials.from_service_account_info(
+            service_account_info,
             scopes=config('SCOPES', cast=lambda v: [s.strip() for s in v.split(',')])
         )
         request = google.auth.transport.requests.Request()
@@ -29,6 +30,19 @@ def get_dialogflow_token():
         raise APIException(e.args[0])
     return user_cred.get('token')
 
+def google_service_account_info():
+    service_account_info = dict()
+    service_account_info['type'] = config('GOOGLE_TYPE')
+    service_account_info['project_id'] = config('GOOGLE_PROJECT_ID')
+    service_account_info['private_key_id'] = config('GOOGLE_PRIVATE_KEY_ID')
+    service_account_info['private_key'] = config('GOOGLE_PRIVATE_KEY').replace("\\n", "\n")
+    service_account_info['client_email'] = config('GOOGLE_CLIENT_EMAIL')
+    service_account_info['client_id'] = config('GOOGLE_CLIENT_ID')
+    service_account_info['auth_uri'] = config('GOOGLE_AUTH_URI')
+    service_account_info['token_uri'] = config('GOOGLE_TOKEN_URI')
+    service_account_info['auth_provider_x509_cert_url'] = config('GOOGLE_AUTH_PROVIDER_X509_CERT_URL')
+    service_account_info['client_x509_cert_url'] = config('GOOGLE_CLIENT_X509_CERT_URL')
+    return service_account_info
 
 def get_intent_from_dialogflow(msg):
     post_data = {
