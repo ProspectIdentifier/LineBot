@@ -6,7 +6,6 @@ from rest_framework.exceptions import APIException, ParseError, PermissionDenied
 
 from .serializers import DialogflowAppSerializer
 import dialogflowAPP.message_handler as msg_handler
-# import dialogflowAPP.model as model
 
 from decouple import config
 from linebot import LineBotApi, WebhookHandler
@@ -15,8 +14,16 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
 import json
 
-line_bot_api = LineBotApi(config('LINE_CHANNEL_ACCESS_TOKEN'))
-handler = WebhookHandler(config('LINE_CHANNEL_SECRET'))
+import os
+enviroment = os.environ['DJANGO_SETTINGS_MODULE'].split('.')[-1]
+
+if enviroment == 'staging':
+    line_bot_api = LineBotApi(config('LINE_CHANNEL_ACCESS_TOKEN_STG'))
+    handler = WebhookHandler(config('LINE_CHANNEL_SECRET_STG'))
+elif enviroment == 'production':
+    line_bot_api = LineBotApi(config('LINE_CHANNEL_ACCESS_TOKEN'))
+    handler = WebhookHandler(config('LINE_CHANNEL_SECRET'))
+
 
 class DialogflowAppChat(views.APIView):
     def post(self, request, *args, **kwargs):
@@ -24,14 +31,14 @@ class DialogflowAppChat(views.APIView):
         body = request.body.decode('utf-8')
         response_data = { "message": "Hello, world!" }
         try:
-            if signature == "DUMMY_SIGNATURE": 
+            if signature == "DUMMY_SIGNATURE":
                 #request from test script, not line, return full response
                 response_msg = msg_handler.handle_message(json.loads(body), None)
                 response_data = { "message": response_msg }
-            else: 
+            else:
                 #request from line
                 events = handler.handle(body, signature)
-                
+
         except InvalidSignatureError:
             raise PermissionDenied()
 
@@ -46,4 +53,3 @@ class DialogflowAppChat(views.APIView):
     @handler.add(MessageEvent, message=TextMessage)
     def message_text(event: MessageEvent):
         msg_handler.handle_message(event, line_bot_api)
-        
