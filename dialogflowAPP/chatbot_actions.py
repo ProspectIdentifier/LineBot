@@ -8,9 +8,10 @@ class DefaultChatBotAction():
 
     def get_response(self):
         response_msg = self.intent.get("fulfillmentText", "")
-        self.line_bot_api.reply_message(
-            self.msg.reply_token,
-            TextSendMessage(text=response_msg)
-        )
+        if self.line_bot_api is not None:
+            self.line_bot_api.reply_message(
+                self.msg.reply_token,
+                TextSendMessage(text=response_msg)
+            )
         return response_msg
 
