@@ -44,11 +44,11 @@ def google_service_account_info():
     service_account_info['client_x509_cert_url'] = config('GOOGLE_CLIENT_X509_CERT_URL')
     return service_account_info
 
-def get_intent_from_dialogflow(msg):
+def get_intent_from_dialogflow(msg_text, user_id):
     post_data = {
         "queryInput":{
             "text":{
-                "text": msg.message.text,
+                "text": msg_text,
 		        "languageCode": config('LANGUAGECODE')
             }
         }
@@ -59,7 +59,7 @@ def get_intent_from_dialogflow(msg):
         "Authorization": "Bearer " + get_dialogflow_token()
     }
 
-    url = config('DIALOGFLOWAPI') + msg.source.user_id + ":detectIntent"
+    url = config('DIALOGFLOWAPI') + user_id + ":detectIntent"
     response = requests.post(url,
                         json=post_data,
                         headers=header)
@@ -69,7 +69,11 @@ def get_intent_from_dialogflow(msg):
 
 def handle_message(msg, line_bot_api):
     try:
-        intent = get_intent_from_dialogflow(msg)
+        #i dont know if there's better solution for this
+        if line_bot_api is None: #is testing
+            intent = get_intent_from_dialogflow(msg["message"]["text"], msg["source"]["user_id"])
+        else: #is from LINE
+            intent = get_intent_from_dialogflow(msg.message.text, msg.source.user_id)
         try:
             parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent, line_bot_api)
             return parsed_action.get_response()
