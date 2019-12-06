@@ -13,6 +13,8 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
+import json
+
 line_bot_api = LineBotApi(config('LINE_CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(config('LINE_CHANNEL_SECRET'))
 
@@ -24,7 +26,7 @@ class DialogflowAppChat(views.APIView):
         try:
             if signature == "DUMMY_SIGNATURE": 
                 #request from test script, not line, return full response
-                response_msg = msg_handler.handle_message(body, None)
+                response_msg = msg_handler.handle_message(json.loads(body), None)
                 response_data = { "message": response_msg }
             else: 
                 #request from line
