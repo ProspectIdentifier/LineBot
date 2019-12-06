@@ -15,4 +15,12 @@ So basically you have to:
 ## Run Django Project
 
 - Install the requirements `pip3 install -r requirements.txt`
-- Try the project by run `python3 manage.py runserver` and access it on **http://localhost:8000/**
+
+- Try the project by run `python3 manage.py runserver --settings=LineBot.settings.[environment variable]` and access it on **http://localhost:8000/**
+
+  Environment Variable:
+
+  - `production` - Production Server
+  - `staging` - Staging server
+
+  

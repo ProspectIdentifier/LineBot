@@ -11,3 +11,5 @@ line-bot-sdk
 google-auth
 cachetools
 dialogflow
+pylint
+pylint-django
