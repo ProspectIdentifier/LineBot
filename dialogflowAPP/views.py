@@ -20,16 +20,22 @@ class DialogflowAppChat(views.APIView):
     def post(self, request, *args, **kwargs):
         signature = request.META['HTTP_X_LINE_SIGNATURE']
         body = request.body.decode('utf-8')
+        response_data = { "message": "Hello, world!" }
         try:
-            events = handler.handle(body, signature)
-
+            if signature == "DUMMY_SIGNATURE": 
+                #request from test script, not line, return full response
+                response_data = msg_handler.handle_message(body, None)
+            else: 
+                #request from line
+                events = handler.handle(body, signature)
+                
         except InvalidSignatureError:
             raise PermissionDenied()
 
         except LineBotApiError:
             raise ParseError()
 
-        serializer = DialogflowAppSerializer(data={"message": "Hello, world!"})
+        serializer = DialogflowAppSerializer(data=response_data)
         if serializer.is_valid():
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

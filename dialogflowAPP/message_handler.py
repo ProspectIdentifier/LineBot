@@ -77,5 +77,6 @@ def handle_message(msg, line_bot_api):
             return DefaultChatBotAction(msg, intent, line_bot_api).get_response()
     except:
         err_msg = "I don't understand what you are saying."
-        line_bot_api.reply_message(msg.reply_token, TextSendMessage(text=err_msg))
+        if line_bot_api is not None:
+            line_bot_api.reply_message(msg.reply_token, TextSendMessage(text=err_msg))
         return err_msg
