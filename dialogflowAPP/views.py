@@ -24,7 +24,8 @@ class DialogflowAppChat(views.APIView):
         try:
             if signature == "DUMMY_SIGNATURE": 
                 #request from test script, not line, return full response
-                response_data = msg_handler.handle_message(body, None)
+                response_msg = msg_handler.handle_message(body, None)
+                response_data = { "message": response_msg }
             else: 
                 #request from line
                 events = handler.handle(body, signature)
