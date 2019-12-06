@@ -13,6 +13,9 @@ from linebot.models import TextSendMessage
 from cachetools import cached, TTLCache
 from dialogflowAPP.chatbot_actions import *
 
+from dialogflowAPP.search_reseller import check_for_keyword_search
+from dialogflowAPP.logrecoder import *
+
 cache = TTLCache(maxsize=1024, ttl=3600)
 
 @cached(cache)
@@ -69,12 +72,23 @@ def get_intent_from_dialogflow(msg_text, user_id):
 
 def handle_message(msg, line_bot_api):
     try:
+        infra_status('user_access', msg.source.user_id)
         #i dont know if there's better solution for this
         if line_bot_api is None: #is testing
             intent = get_intent_from_dialogflow(msg["message"]["text"], msg["source"]["user_id"])
         else: #is from LINE
             intent = get_intent_from_dialogflow(msg.message.text, msg.source.user_id)
         try:
+            if intent['intent']['displayName'] == 'book_meeting':
+                business_status('book_meeting', msg.source.user_id)
+        except:
+            pass
+        try:
+            reseller_exist, reseller_info = check_for_keyword_search(intent)
+            if reseller_exist:
+                application_status('reseller_search', msg.source.user_id)
+                line_bot_api.reply_message(msg.reply_token, reseller_info)
+                return 'business end'
             parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent, line_bot_api)
             return parsed_action.get_response()
         except:
