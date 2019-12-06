@@ -15,7 +15,7 @@ def make_carousel_object(result):
     for item in result[:10]:
         description = '\n'.join(['%s: %s' % (title, item[title]) for title in titles])[:60]
         action_list = [PostbackAction(label='Book a meeting', data=item['Name'], text='Book a meeting with %s' % item['Name'])]
-        obj = CarouselColumn(text=description, title=item['Name'], actions=action_list)
+        obj = CarouselColumn(text=description, title=item['Name'][:40], actions=action_list)
         carousel_list.append(obj)
     carousel_template = CarouselTemplate(columns=carousel_list)
     template_message = TemplateSendMessage(
