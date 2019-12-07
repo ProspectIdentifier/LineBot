@@ -1,25 +1,19 @@
-import json
-from rest_framework import status
-from django.test import TestCase, Client
-from django.urls import reverse
-from ..serializers import DialogflowAppSerializer
-
+import os
 import responses
 from urllib import parse
 from decouple import config
 
+from django.test import TestCase, Client
+
 from linebot import LineBotApi
-from linebot.exceptions import LineBotApiError
-from linebot.models import TextSendMessage
 
 # initialize the APIClient app
-client = Client()
+CLIENT = Client()
 
 class TestLineBotApi(TestCase):
     """ Test module for inserting a new test """
 
     def setUp(self):
-        import os
         enviroment = os.environ['DJANGO_SETTINGS_MODULE'].split('.')[-1]
 
         if enviroment == 'staging':
@@ -36,6 +30,7 @@ class TestLineBotApi(TestCase):
 
     @responses.activate
     def test_issue_line_token(self):
+        '''test line token'''
         responses.add(
             responses.POST,
             self.endpoint,
