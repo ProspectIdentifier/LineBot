@@ -21,7 +21,7 @@ class DefaultChatBotAction():
         reseller_exist, reseller_info = check_for_keyword_search(self.intent)
         if reseller_exist:
             application_status('reseller_search', self.msg.source.user_id)
-            line_bot_api.reply_message(self.msg.reply_token, reseller_info)
+            self.line_bot_api.reply_message(self.msg.reply_token, reseller_info)
             return 'business end'
 
         response_msg = self.intent.get("fulfillmentText", "")
