@@ -1,0 +1,27 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+v = {editable = true,version = "*"}
+
+[packages]
+requests = "==2.20.0"
+djangorestframework = "==3.10.3"
+python-decouple = "==3.3"
+coreapi = "==2.3.3"
+responses = "==0.10.7"
+gunicorn = "==19.6.0"
+line-bot-sdk = "*"
+google-auth = "*"
+cachetools = "*"
+dialogflow = "*"
+pylint = "*"
+pylint-django = "*"
+uWSGI = "==2.0.18"
+Django = "==2.2.8"
+
+[requires]
+python_version = "3.6"
