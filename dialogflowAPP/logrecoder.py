@@ -1,7 +1,6 @@
+import os
 import logging
 from decouple import config
-from datetime import datetime
-import os
 
 # create logger
 logger = logging.getLogger('Prospectidentifier')
@@ -33,13 +32,16 @@ logger.addHandler(ch)
 
 
 def infra_status(action, uuid):
-	logger.info('infra - %s - %s' %(action, uuid))
+    '''The infra layer'''
+    logger.info('infra - %s - %s' %(action, uuid))
 
 def application_status(action, uuid):
-	logger.info('application - %s - %s' %(action, uuid))
+    '''The application layer'''
+    logger.info('application - %s - %s' %(action, uuid))
 
 def business_status(action, uuid):
-	logger.info('business - %s - %s' %(action, uuid))
+    '''The business layer'''
+    logger.info('business - %s - %s' %(action, uuid))
 
 
 

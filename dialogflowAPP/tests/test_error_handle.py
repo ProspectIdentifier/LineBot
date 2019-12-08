@@ -1,24 +1,20 @@
-import json
-from rest_framework import status
-from django.test import TestCase, Client
-from django.urls import reverse
-from ..serializers import DialogflowAppSerializer
-
+import os
 import responses
 from decouple import config
+
+from django.test import TestCase, Client
 
 from linebot import LineBotApi
 from linebot.exceptions import LineBotApiError
 from linebot.models import TextSendMessage
 
 # initialize the APIClient app
-client = Client()
+CLIENT = Client()
 
 class TestLineBotApi(TestCase):
     """ Test module for inserting a new test """
 
     def setUp(self):
-        import os
         enviroment = os.environ['DJANGO_SETTINGS_MODULE'].split('.')[-1]
 
         if enviroment == 'staging':
@@ -31,6 +27,7 @@ class TestLineBotApi(TestCase):
 
     @responses.activate
     def test_error_handle(self):
+        '''test error handle'''
         responses.add(
             responses.POST,
             LineBotApi.DEFAULT_API_ENDPOINT + '/v2/bot/message/push',
@@ -43,15 +40,16 @@ class TestLineBotApi(TestCase):
 
         try:
             self.tested.push_message('to', TextSendMessage(text='hoge'))
-        except LineBotApiError as e:
-            self.assertEqual(e.status_code, 401)
-            self.assertEqual(e.error.message, 'Invalid reply token')
-            self.assertEqual(e.request_id, self.request_id)
-            self.assertEqual(e.headers['HOGE'], 'FUGA')
+        except LineBotApiError as error:
+            self.assertEqual(error.status_code, 401)
+            self.assertEqual(error.error.message, 'Invalid reply token')
+            self.assertEqual(error.request_id, self.request_id)
+            self.assertEqual(error.headers['HOGE'], 'FUGA')
 
 
     @responses.activate
     def test_error_handle_get_message_content(self):
+        '''test error handle get message'''
         responses.add(
             responses.GET,
             LineBotApi.DEFAULT_API_DATA_ENDPOINT + '/v2/bot/message/1/content',
@@ -64,8 +62,8 @@ class TestLineBotApi(TestCase):
 
         try:
             self.tested.get_message_content(1)
-        except LineBotApiError as e:
-            self.assertEqual(e.status_code, 404)
-            self.assertEqual(e.error.message, 'Invalid reply token')
-            self.assertEqual(e.request_id, self.request_id)
-            self.assertEqual(e.headers['HOGE'], 'FUGA')
+        except LineBotApiError as error:
+            self.assertEqual(error.status_code, 404)
+            self.assertEqual(error.error.message, 'Invalid reply token')
+            self.assertEqual(error.request_id, self.request_id)
+            self.assertEqual(error.headers['HOGE'], 'FUGA')

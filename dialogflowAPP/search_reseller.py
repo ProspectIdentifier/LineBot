@@ -1,23 +1,25 @@
 import requests
 from decouple import config
 from linebot.models import (CarouselTemplate, TemplateSendMessage,
-                            CarouselColumn, URIAction, PostbackAction,
+                            CarouselColumn, PostbackAction,
                             MessageAction, TextSendMessage)
 
 # 'Address', 'Blocked', 'RecordType', 'Phone', 'Email', 'PostCode'
-titles = ['NavisionID', 'City']
-data = ['Address', 'Phone', 'Email', 'PostCode']
+TITLES = ['NavisionID', 'City']
+DATA = ['Address', 'Phone', 'Email', 'PostCode']
 
 def search_reseller(keyword, country):
-    r = requests.get(config('RESELLER') % (country, keyword))
-    res = r.json()
+    '''search reseller's' information'''
+    res = requests.get(config('RESELLER') % (country, keyword))
+    res = res.json()
     return res['Results']
 
 def make_carousel_object(result):
+    '''Message Template'''
     carousel_list = []
 
     for item in result[:10]:
-        description = '\n'.join(['%s: %s' % (title, item[title]) for title in titles])[:60]
+        description = '\n'.join(['%s: %s' % (title, item[title]) for title in TITLES])[:60]
         action_list = [PostbackAction(label='Book a meeting',
                                       data=item['Name'],
                                       text='Book a meeting with %s' % item['Name'])]
@@ -28,11 +30,12 @@ def make_carousel_object(result):
 
     carousel_template = CarouselTemplate(columns=carousel_list)
     template_message = TemplateSendMessage(
-            alt_text='Here are the companies/resellers we found',
-            template=carousel_template)
+        alt_text='Here are the companies/resellers we found',
+        template=carousel_template)
     return template_message
 
 def check_for_keyword_search(intent):
+    '''the keyword of the company'''
     try:
         if intent['action'] == 'find_reseller.find_reseller-fallback':
             country = intent['outputContexts'][0]['parameters']['Country']
@@ -40,7 +43,10 @@ def check_for_keyword_search(intent):
             result = search_reseller(keyword, country)
             if len(result) > 0:
                 return True, make_carousel_object(result)
-            else:
-                return True, TextSendMessage(text="Sorry, we can't find any companies/resellers similar to [%s] in %s. Or you can try some other keywords?" % (keyword, country))
+            return True, TextSendMessage(text="Sorry, we can't find any \
+                                               companies/resellers similar \
+                                               to [%s] in %s. Or you can \
+                                               try some other keywords?" % (keyword, country))
+        return False, ''
     except:
         return False, ''
