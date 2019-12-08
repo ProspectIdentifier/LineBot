@@ -1,6 +1,7 @@
 import os
 import logging
 from decouple import config
+import psutil
 
 # create logger
 logger_i = logging.getLogger('Prospectidentifier')
@@ -34,13 +35,14 @@ logger_i.addHandler(fh)
 logger_e.addHandler(ch)
 
 
-def infra_status(action, uuid):
+def infra_status(action, msg):
     '''The infra layer'''
-    logger_i.info('infra - %s - %s' %(action, uuid))
+    logger_i.info('infra - %s - %s' %(action, msg))
 
-def application_status(action, uuid):
+def application_status(action, country, keyword, result_num, uuid):
     '''The application layer'''
-    logger_i.info('application - %s - %s' %(action, uuid))
+    info = {'country': country, 'keyword': keyword, 'result_num': result_num}
+    logger_i.info('application - %s - %s - %s' %(action, str(info) , uuid))
 
 def business_status(action, uuid):
     '''The business layer'''

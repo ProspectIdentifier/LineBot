@@ -12,9 +12,13 @@ from linebot.models import TextSendMessage
 
 from dialogflowAPP.chatbot_actions import *
 
-from dialogflowAPP.logrecoder import *
+from dialogflowAPP.logrecoder import infra_status, error_status
 
 import traceback
+
+from datetime import datetime, timedelta
+
+import psutil
 
 cache = TTLCache(maxsize=1024, ttl=3600)
 
@@ -73,20 +77,28 @@ def get_intent_from_dialogflow(msg_text, user_id):
     intent = json.loads(response.text)
     return intent.get("queryResult", None)
 
+last_time = datetime.now()
+
 def handle_message(msg, line_bot_api):
     '''Line message handle'''
     try:
-        infra_status('user_access', msg.source.user_id)
+        global last_time
+        
+        #print(type(last_time), last_time)
+        if datetime.now() - last_time > timedelta(seconds=10):
+            infra_status('cpu_percent', str(psutil.cpu_percent()))
+            infra_status('virtual_memory', str(psutil.virtual_memory()))
+            last_time = datetime.now()
         #i dont know if there's better solution for this
         if line_bot_api is None: #is testing
             intent = get_intent_from_dialogflow(msg["message"]["text"], msg["source"]["user_id"])
         else: #is from LINE
             intent = get_intent_from_dialogflow(msg.message.text, msg.source.user_id)
-        try:
-            parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent, line_bot_api)
-            return parsed_action.get_response()
-        except:
-            return DefaultChatBotAction(msg, intent, line_bot_api).get_response()
+        #try:
+        #    parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent, line_bot_api)
+        #    return parsed_action.get_response()
+        #except:
+        return DefaultChatBotAction(msg, intent, line_bot_api).get_response()
 
     except Exception as error:
         print(error)

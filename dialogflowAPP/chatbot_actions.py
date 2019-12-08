@@ -1,6 +1,6 @@
-from linebot.models import TextSendMessage
+from linebot.models import TextSendMessage, ConfirmTemplate, TemplateSendMessage, MessageAction
 from dialogflowAPP.search_reseller import check_for_keyword_search
-from dialogflowAPP.logrecoder import *
+from dialogflowAPP.logrecoder import business_status#, error_status
 import traceback
 
 class DefaultChatBotAction():
@@ -9,18 +9,27 @@ class DefaultChatBotAction():
         self.msg = msg
         self.intent = intent
         self.line_bot_api = line_bot_api
+        self.opp_msg = 'Opportunity is created! Do you need to reserve a meeting room with this customer?'
 
     def get_response(self):
         '''Get fulfillment text'''
-        try:
-            if self.intent['action'] == 'book_meeting.book_meeting-yes':
-                business_status('book_meeting', self.msg.source.user_id)
-        except:
-            pass
+        #print(self.intent)
+        if 'action' in self.intent and self.intent['action'] == 'book_meeting.book_meeting-yes':
+            business_status('book_meeting', self.msg.source.user_id)
 
-        reseller_exist, reseller_info = check_for_keyword_search(self.intent)
+        if 'fulfillmentText' in self.intent and self.intent['fulfillmentText'] == self.opp_msg:
+            confirm_template = ConfirmTemplate(text=self.opp_msg, actions=[
+                MessageAction(label='Yes', text='Yes'),
+                MessageAction(label='No', text='No'),
+            ])
+            template_message = TemplateSendMessage(
+                alt_text='Opportunity is created!', template=confirm_template)
+            self.line_bot_api.reply_message(self.msg.reply_token, template_message)
+            return 'confirm_template'
+
+
+        reseller_exist, reseller_info = check_for_keyword_search(self.intent, self.msg)
         if reseller_exist:
-            application_status('reseller_search', self.msg.source.user_id)
             self.line_bot_api.reply_message(self.msg.reply_token, reseller_info)
             return 'business end'
 
@@ -30,5 +39,5 @@ class DefaultChatBotAction():
                 self.msg.reply_token,
                 TextSendMessage(text=response_msg)
             )
-        error_status(traceback.format_exc(), self.msg.source.user_id)
+        #error_status(traceback.format_exc(), self.msg.source.user_id)
         return response_msg
