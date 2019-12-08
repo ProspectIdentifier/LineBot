@@ -20,9 +20,17 @@ def make_carousel_object(result):
 
     for item in result[:10]:
         description = '\n'.join(['%s: %s' % (title, item[title]) for title in TITLES])[:60]
-        action_list = [PostbackAction(label='Book a meeting',
-                                      data=item['Name'],
-                                      text='Book a meeting with %s' % item['Name'])]
+        action_list = [
+            PostbackAction(label='Book a meeting',
+                            data=item['Name'],
+                            text='Book a meeting with %s' % item['Name']),
+            URIAction(label='Company Summary', 
+                        uri='line://app/1611201899-GaVvEBB3?id='+item['NavisionID'] ),
+            URIAction(label='Contact List', 
+                        uri='line://app/1611201899-xj78kWWZ?id='+item['NavisionID'] ),
+            URIAction(label='Interesting', 
+                        uri='line://app/1611201899-mkn59qqz?id='+item['NavisionID'] ),
+        ]
         obj = CarouselColumn(text=description,
                              title=item['Name'][:40],
                              actions=action_list)
