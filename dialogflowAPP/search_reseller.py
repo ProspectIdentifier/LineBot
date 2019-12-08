@@ -2,7 +2,8 @@ import requests
 from decouple import config
 from linebot.models import (CarouselTemplate, TemplateSendMessage,
                             CarouselColumn, PostbackAction,
-                            MessageAction, TextSendMessage)
+                            MessageAction, TextSendMessage,
+                            URIAction)
 
 # 'Address', 'Blocked', 'RecordType', 'Phone', 'Email', 'PostCode'
 TITLES = ['NavisionID', 'City']
@@ -21,9 +22,9 @@ def make_carousel_object(result):
     for item in result[:10]:
         description = '\n'.join(['%s: %s' % (title, item[title]) for title in TITLES])[:60]
         action_list = [
-            PostbackAction(label='Book a meeting',
-                            data=item['Name'],
-                            text='Book a meeting with %s' % item['Name']),
+            #PostbackAction(label='Book a meeting',
+            #                data=item['Name'],
+            #                text='Book a meeting with %s' % item['Name']),
             URIAction(label='Company Summary', 
                         uri='line://app/1611201899-GaVvEBB3?id='+item['NavisionID'] ),
             URIAction(label='Contact List', 

@@ -3,8 +3,11 @@ import logging
 from decouple import config
 
 # create logger
-logger = logging.getLogger('Prospectidentifier')
-logger.setLevel(logging.DEBUG)
+logger_i = logging.getLogger('Prospectidentifier')
+logger_i.setLevel(logging.DEBUG)
+
+logger_e = logging.getLogger('ProspectidentifierError')
+logger_e.setLevel(logging.DEBUG)
 
 
 # create file handler which logs even debug messages
@@ -16,7 +19,7 @@ fh.setLevel(logging.DEBUG)
 
 
 # create console handler with a higher log level
-ch = logging.StreamHandler()
+ch = logging.FileHandler(config('LOG_FOLDER') + 'ERROR.log')
 ch.setLevel(logging.ERROR)
 
 
@@ -27,23 +30,24 @@ ch.setFormatter(formatter)
 
 
 # add the handlers to the logger
-logger.addHandler(fh)
-logger.addHandler(ch)
+logger_i.addHandler(fh)
+logger_e.addHandler(ch)
 
 
 def infra_status(action, uuid):
     '''The infra layer'''
-    logger.info('infra - %s - %s' %(action, uuid))
+    logger_i.info('infra - %s - %s' %(action, uuid))
 
 def application_status(action, uuid):
     '''The application layer'''
-    logger.info('application - %s - %s' %(action, uuid))
+    logger_i.info('application - %s - %s' %(action, uuid))
 
 def business_status(action, uuid):
     '''The business layer'''
-    logger.info('business - %s - %s' %(action, uuid))
+    logger_i.info('business - %s - %s' %(action, uuid))
 
-
+def error_status(err_msg, uuid):
+	logger_e.error('%s - %s' %(uuid, err_msg))
 
 #infra_status('user_access', '123')
 #application_status('user_create', '123')
