@@ -12,8 +12,9 @@ from linebot.models import TextSendMessage
 
 from dialogflowAPP.chatbot_actions import *
 
-from dialogflowAPP.search_reseller import check_for_keyword_search
 from dialogflowAPP.logrecoder import *
+
+import traceback
 
 cache = TTLCache(maxsize=1024, ttl=3600)
 
@@ -81,19 +82,7 @@ def handle_message(msg, line_bot_api):
             intent = get_intent_from_dialogflow(msg["message"]["text"], msg["source"]["user_id"])
         else: #is from LINE
             intent = get_intent_from_dialogflow(msg.message.text, msg.source.user_id)
-
         try:
-            if intent['intent']['displayName'] == 'book_meeting':
-                business_status('book_meeting', msg.source.user_id)
-        except TypeError:
-            pass
-
-        try:
-            reseller_exist, reseller_info = check_for_keyword_search(intent)
-            if reseller_exist:
-                application_status('reseller_search', msg.source.user_id)
-                line_bot_api.reply_message(msg.reply_token, reseller_info)
-                return 'business end'
             parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent, line_bot_api)
             return parsed_action.get_response()
         except:
@@ -104,4 +93,5 @@ def handle_message(msg, line_bot_api):
         err_msg = "I don't understand what you are saying."
         if line_bot_api is not None:
             line_bot_api.reply_message(msg.reply_token, TextSendMessage(text=err_msg))
+            error_status(traceback.format_exc(), msg.source.user_id)
         return err_msg
