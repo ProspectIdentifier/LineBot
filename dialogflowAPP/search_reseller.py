@@ -1,5 +1,7 @@
 import requests
 from decouple import config
+import traceback
+from dialogflowAPP.logrecoder import application_status#, error_status
 from linebot.models import (CarouselTemplate, TemplateSendMessage,
                             CarouselColumn, PostbackAction,
                             MessageAction, TextSendMessage,
@@ -43,13 +45,14 @@ def make_carousel_object(result):
         template=carousel_template)
     return template_message
 
-def check_for_keyword_search(intent):
+def check_for_keyword_search(intent, msg):
     '''the keyword of the company'''
     try:
         if intent['action'] == 'find_reseller.find_reseller-fallback':
             country = intent['outputContexts'][0]['parameters']['Country']
             keyword = intent['queryText'].replace(' ', '')
             result = search_reseller(keyword, country)
+            application_status('reseller_search', country, keyword, len(result), msg.source.user_id)
             if len(result) > 0:
                 return True, make_carousel_object(result)
             return True, TextSendMessage(text="Sorry, we can't find any \
@@ -58,4 +61,5 @@ def check_for_keyword_search(intent):
                                                try some other keywords?" % (keyword, country))
         return False, ''
     except:
+        #error_status(traceback.format_exc(), 'test')
         return False, ''
