@@ -12,7 +12,6 @@ class DefaultChatBotAction():
 
     def get_response(self):
         '''Get fulfillment text'''
-        print(self.intent)
         try:
             if self.intent['action'] == 'book_meeting.book_meeting-yes':
                 business_status('book_meeting', self.msg.source.user_id)
