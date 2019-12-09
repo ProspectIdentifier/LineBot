@@ -50,7 +50,3 @@ def business_status(action, uuid):
 
 def error_status(err_msg, uuid):
 	logger_e.error('%s - %s' %(uuid, err_msg))
-
-#infra_status('user_access', '123')
-#application_status('user_create', '123')
-#business_status('meeting', '123')
