@@ -82,6 +82,7 @@ def handle_message(msg, line_bot_api):
     try:
         global last_time
         infra_status('user_access', msg.source.user_id)
+
         InfraLog.objects.create(action='user_access',
                                 content=msg.source.user_id)
 
@@ -89,10 +90,10 @@ def handle_message(msg, line_bot_api):
             infra_status('cpu_percent', str(psutil.cpu_percent()))
             InfraLog.objects.create(action='cpu_percent',
                                     content=str(psutil.cpu_percent()))
-
-            infra_status('virtual_memory', str(psutil.virtual_memory()))
-            InfraLog.objects.create(action='virtual_memory',
-                                    content=str(psutil.virtual_memory()))
+            vm = psutil.virtual_memory()
+            infra_status('memory_percent', '%0.1f' % ((vm.total - vm.available) / vm.total * 100))
+            InfraLog.objects.create(action='memory_percent',
+                                    content=str('%0.1f' % ((vm.total - vm.available) / vm.total * 100)))
             last_time = datetime.now()
         #i dont know if there's better solution for this
         if line_bot_api is None: #is testing
