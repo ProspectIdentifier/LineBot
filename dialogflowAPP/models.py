@@ -19,3 +19,8 @@ class BusinessLog(models.Model):
     '''Business Log'''
     lineuserid = models.CharField(max_length=33)
     action = models.CharField(max_length=50)
+
+class OperationLog(models.Model):
+    '''Operation Log'''
+    server = models.CharField(max_length=33)
+    deploy_time = models.DateTimeField()

@@ -1,7 +1,7 @@
 from linebot.models import TextSendMessage, ConfirmTemplate, TemplateSendMessage, MessageAction
 from dialogflowAPP.search_reseller import check_for_keyword_search
-from dialogflowAPP.logrecoder import business_status
-from dialogflowAPP.models import BusinessLog
+from dialogflowAPP.logrecoder import business_status, infra_status
+from dialogflowAPP.models import BusinessLog, InfraLog
 
 class DefaultChatBotAction():
     '''Default Reply'''
@@ -18,7 +18,7 @@ class DefaultChatBotAction():
             business_status('book_meeting', self.msg.source.user_id)
             BusinessLog.objects.create(lineuserid=self.msg.source.user_id,
                                        action='book_meeting')
-                                       
+
         if 'fulfillmentText' in self.intent and self.intent['fulfillmentText'] == self.opp_msg:
             confirm_template = ConfirmTemplate(text=self.opp_msg, actions=[
                 MessageAction(label='Yes', text='Yes'),
@@ -41,4 +41,7 @@ class DefaultChatBotAction():
                 self.msg.reply_token,
                 TextSendMessage(text=response_msg)
             )
+        infra_status('chatbot_answer', self.msg.source.user_id)
+        InfraLog.objects.create(action='chatbot_answer',
+                                content=self.msg.source.user_id)
         return response_msg
