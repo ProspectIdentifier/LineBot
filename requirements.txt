@@ -14,3 +14,4 @@ dialogflow
 pylint
 pylint-django
 psutil==5.6.7
+psycopg2
