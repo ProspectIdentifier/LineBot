@@ -1,5 +1,9 @@
 import json
+from datetime import datetime, timedelta
+import traceback
+import psutil
 import requests
+
 from decouple import config
 
 from rest_framework.exceptions import APIException
@@ -11,14 +15,8 @@ from cachetools import cached, TTLCache
 from linebot.models import TextSendMessage
 
 from dialogflowAPP.chatbot_actions import *
-
 from dialogflowAPP.logrecoder import infra_status, error_status
-
-import traceback
-
-from datetime import datetime, timedelta
-
-import psutil
+from dialogflowAPP.models import InfraLog
 
 cache = TTLCache(maxsize=1024, ttl=3600)
 
@@ -83,21 +81,24 @@ def handle_message(msg, line_bot_api):
     '''Line message handle'''
     try:
         global last_time
-        
-        #print(type(last_time), last_time)
+        infra_status('user_access', msg.source.user_id)
+        InfraLog.objects.create(action='user_access',
+                                content=msg.source.user_id)
+
         if datetime.now() - last_time > timedelta(seconds=10):
             infra_status('cpu_percent', str(psutil.cpu_percent()))
+            InfraLog.objects.create(action='cpu_percent',
+                                    content=str(psutil.cpu_percent()))
+
             infra_status('virtual_memory', str(psutil.virtual_memory()))
+            InfraLog.objects.create(action='virtual_memory',
+                                    content=str(psutil.virtual_memory()))
             last_time = datetime.now()
         #i dont know if there's better solution for this
         if line_bot_api is None: #is testing
             intent = get_intent_from_dialogflow(msg["message"]["text"], msg["source"]["user_id"])
         else: #is from LINE
             intent = get_intent_from_dialogflow(msg.message.text, msg.source.user_id)
-        #try:
-        #    parsed_action = globals()[intent.get("action") + "ChatBotAction"](msg, intent, line_bot_api)
-        #    return parsed_action.get_response()
-        #except:
         return DefaultChatBotAction(msg, intent, line_bot_api).get_response()
 
     except Exception as error:

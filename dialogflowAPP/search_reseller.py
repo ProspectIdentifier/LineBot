@@ -2,10 +2,9 @@ import requests
 from decouple import config
 import traceback
 from dialogflowAPP.logrecoder import application_status#, error_status
+from dialogflowAPP.models import ApplicationLog
 from linebot.models import (CarouselTemplate, TemplateSendMessage,
-                            CarouselColumn, PostbackAction,
-                            MessageAction, TextSendMessage,
-                            URIAction)
+                            CarouselColumn, TextSendMessage, URIAction)
 
 # 'Address', 'Blocked', 'RecordType', 'Phone', 'Email', 'PostCode'
 TITLES = ['NavisionID', 'City']
@@ -24,9 +23,6 @@ def make_carousel_object(result):
     for item in result[:10]:
         description = '\n'.join(['%s: %s' % (title, item[title]) for title in TITLES])[:60]
         action_list = [
-            #PostbackAction(label='Book a meeting',
-            #                data=item['Name'],
-            #                text='Book a meeting with %s' % item['Name']),
             URIAction(label='Company Summary',
                       uri='line://app/1611201899-GaVvEBB3?id='+item['NavisionID']),
             URIAction(label='Contact List',
@@ -53,6 +49,11 @@ def check_for_keyword_search(intent, msg):
             keyword = intent['queryText'].replace(' ', '')
             result = search_reseller(keyword, country)
             application_status('reseller_search', country, keyword, len(result), msg.source.user_id)
+            ApplicationLog.objects.create(lineuserid=msg.source.user_id,
+                                          action='reseller_search',
+                                          country=country,
+                                          keyword=keyword,
+                                          result_num=len(result))
             if len(result) > 0:
                 return True, make_carousel_object(result)
             return True, TextSendMessage(text="Sorry, we can't find any \
