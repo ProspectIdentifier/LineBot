@@ -1,6 +1,6 @@
 requests==2.20.0
 uWSGI==2.0.18
-django==2.2.8
+django==2.2.20
 djangorestframework==3.10.3
 python-decouple==3.3
 coreapi==2.3.3
